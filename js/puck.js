@@ -18,7 +18,7 @@ class Puck
     this.maxBounces = 4;
   }
 
-  update(topPaddle,bottomPaddle)
+  update(topPaddle,bottomPaddle,blocks)
   {
     if(this.velocity.mag()>this.maxSpeed)this.velocity.setMag(this.maxSpeed);
     this.velocity.add(this.acceleration);
@@ -45,6 +45,10 @@ class Puck
       this.checkPaddle(topPaddle);
       this.checkPaddle(bottomPaddle);
     }
+
+    //test
+    this.checkBlocks(blocks);
+
     fill(255,0,0);
     stroke(255,0,0);
     strokeWeight(8);
@@ -110,6 +114,34 @@ class Puck
       this.lastWallBounce = millis();
     }
   }
+
+  checkCollision(obj)
+  {
+    let halfr = this.r*0.5;
+    let halfpaddleh = obj.size.y*0.5;
+    let halfpaddlew = obj.size.x*0.5;
+    if((this.position.x+halfr>obj.position.x-halfpaddlew &&
+        this.position.x-halfr<obj.position.x+halfpaddlew) &&
+        this.position.y+halfr>obj.position.y-halfpaddleh &&
+        this.position.y-halfr<obj.position.y+halfpaddleh)
+    {
+      this.wallBounces = 0;
+      let v1 = createVector(obj.position.y,0);
+      let v2 = this.velocity;
+      let angle = v2.angleBetween(v1);
+
+      angle = 180-angle;
+      let sth = map(this.position.x,obj.position.x-halfpaddlew,obj.position.x+halfpaddlew,-60,60);
+      angle+=sth;
+      let v =createVector(cos(angle),sin(angle)).setMag(4);
+      this.velocity = v;
+      this.velocity.x*=-1;
+      if(obj.position.y>height/2)this.velocity.y*=-1;
+      return true;
+    }
+    else return false;
+  }
+
   checkPaddle(paddle)
   {
     let halfr = this.r*0.5;
@@ -193,6 +225,17 @@ class Puck
     }
   }
 
+  checkBlocks(blocks)
+  {
+    for(let i = blocks.length-1;i>=0;i--)
+    {
+      if(this.checkCollision(blocks[i]))
+      {
+        blocks[i].color = "#cab";
+        if(!blocks[i].indestructable)blocks.splice(i,1);
+      }
+    }
+  }
 }
 /*
 ehh

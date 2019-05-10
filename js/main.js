@@ -2,6 +2,10 @@ let topPaddle;
 let bottomPaddle;
 let puck;
 let canvas;
+let blocks = [];
+let limit;
+let blockSize = 30;
+let rows = 3;
 
 function setup()
 {
@@ -15,6 +19,18 @@ function setup()
   bottomPaddle = new Paddle(height-15,100,15,65,68,"#bac");
   document.getElementById("bottom-score").style.color = "#bac";
   puck = new Puck();
+  //translate(blockSize/2,height/2-(rows/2*blockSize))
+  let sth = height/2-(rows/2*blockSize);
+  limit = width/blockSize;
+  for(let i=0;i<limit;i++)
+  {
+    for(let j=0;j<rows;j++)
+    {
+      let indestructable = random(1,10) < 3 ? true : false;
+      let tmp = new Block(i*blockSize +blockSize/2,j*blockSize+sth,blockSize,blockSize,i%2==0 ? "#f00" : "#00f",indestructable);
+      blocks.push(tmp);
+    }
+  }
 }
 
 function draw()
@@ -24,7 +40,11 @@ function draw()
   topPaddle.show();
   bottomPaddle.update();
   bottomPaddle.show();
-  puck.update(topPaddle,bottomPaddle);
+  for(let block of blocks)
+  {
+    block.show();
+  }
+  puck.update(topPaddle,bottomPaddle,blocks);
   puck.show();
   fill(255,0,0);
   strokeWeight(4);
